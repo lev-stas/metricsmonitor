@@ -1,4 +1,9 @@
-package main
+package handlers
+
+import (
+	"github.com/stretchr/testify/assert"
+	"testing"
+)
 
 var RuntimeMetrics = []string{
 	"Alloc",
@@ -30,4 +35,9 @@ var RuntimeMetrics = []string{
 	"TotalAlloc",
 }
 
-var URL = "http://localhost:8080"
+func TestPickMetrics(t *testing.T) {
+	t.Run("Test that metric exists", func(t *testing.T) {
+		metrics := PickMetrics(RuntimeMetrics)
+		assert.NotNil(t, metrics)
+	})
+}
