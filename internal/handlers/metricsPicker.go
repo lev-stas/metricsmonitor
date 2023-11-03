@@ -5,19 +5,26 @@ import (
 	"runtime"
 )
 
-func PickMetrics(metricsList []string) map[string]reflect.Value {
+func PickMetrics(metricsList []string) map[string]float64 {
 	var m runtime.MemStats
 	runtime.ReadMemStats(&m)
 
 	memStatsType := reflect.TypeOf(m)
 
-	metrics := make(map[string]reflect.Value)
+	metrics := make(map[string]float64)
 
 	for _, metricName := range metricsList {
 		if _, ok := memStatsType.FieldByName(metricName); ok {
 			fieldValue := reflect.ValueOf(m).FieldByName(metricName)
-			//value := fieldValue.Uint()
-			metrics[metricName] = fieldValue
+			switch true {
+			case fieldValue.CanFloat():
+				metrics[metricName] = fieldValue.Float()
+			case fieldValue.CanUint():
+				metrics[metricName] = float64(fieldValue.Uint())
+			default:
+				{
+				}
+			}
 		}
 	}
 

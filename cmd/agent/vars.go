@@ -30,10 +30,4 @@ var runtimeMetrics = []string{
 	"TotalAlloc",
 }
 
-var gaugeMetrics = []string{
-	"RandomValue",
-}
-
-var counterMetrics = []string{
-	"PollCount",
-}
+var URL = "http://localhost:8080"
