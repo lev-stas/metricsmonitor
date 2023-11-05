@@ -10,6 +10,8 @@ type StorageInterface interface {
 	SetCounterMetric(metric string, value int64)
 	GetGaugeMetric(metric string) (float64, bool)
 	GetCounterMetric(metric string) (int64, bool)
+	GetAllGaugeMetrics() map[string]float64
+	GetAllCounterMetrics() map[string]int64
 }
 
 func NewMemStorage() *MemStorage {
@@ -35,4 +37,12 @@ func (storage *MemStorage) GetGaugeMetric(metric string) (float64, bool) {
 func (storage *MemStorage) GetCounterMetric(metric string) (int64, bool) {
 	value, found := storage.counterMetrics[metric]
 	return value, found
+}
+
+func (storage *MemStorage) GetAllGaugeMetrics() map[string]float64 {
+	return storage.gaugeMetrics
+}
+
+func (storage *MemStorage) GetAllCounterMetrics() map[string]int64 {
+	return storage.counterMetrics
 }
