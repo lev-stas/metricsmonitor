@@ -11,8 +11,8 @@ func main() {
 	PollCount := &handlers.PollCountMetric{}
 	RandomValue := &handlers.RandomValueMetric{}
 
-	pollInterval := time.Second * time.Duration(params.pollInterval)
-	reportInterval := time.Second * time.Duration(params.reportInterval)
+	pollInterval := time.Second * time.Duration(params.PollInterval)
+	reportInterval := time.Second * time.Duration(params.ReportInterval)
 	pollTicker := time.NewTicker(pollInterval)
 	reportTicker := time.NewTicker(reportInterval)
 
@@ -25,7 +25,7 @@ func main() {
 			handlers.PollMetricsRunner(&metrics, PollCount)
 
 		case <-reportTicker.C:
-			handlers.ReportRunner(params.server, &metrics, PollCount, RandomValue)
+			handlers.ReportRunner(params.Server, &metrics, PollCount, RandomValue)
 		}
 	}
 }

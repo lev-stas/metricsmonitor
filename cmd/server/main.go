@@ -13,14 +13,10 @@ var storage *memstorage.MemStorage
 func main() {
 	parseFlags()
 	storage = memstorage.NewMemStorage()
-	//updateRouter := routers.UpdateRouter()
-	//valueRouter := routers.ValueRouter()
-	//
 	r := chi.NewMux()
 	r.Mount("/update", routers.UpdateRouter(storage))
 	r.Mount("/value", routers.ValueRouter(storage))
 	r.Mount("/", routers.RootRouter(storage))
-	//r := routers.UpdateRouter(storage)
-	log.Fatalln(http.ListenAndServe(params.host, r))
+	log.Fatalln(http.ListenAndServe(params.Host, r))
 
 }

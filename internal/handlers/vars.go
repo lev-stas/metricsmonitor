@@ -29,5 +29,3 @@ var RuntimeMetrics = []string{
 	"Sys",
 	"TotalAlloc",
 }
-
-var URL = "http://localhost:8080"

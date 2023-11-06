@@ -15,24 +15,14 @@ func HandleUpdate(storage *memstorage.MemStorage) http.HandlerFunc {
 			return
 		}
 
-		//requestParts := strings.Split(r.URL.Path, "/")
-		//
-
 		metricsType := chi.URLParam(r, "metricsType")
 		metricsName := chi.URLParam(r, "metricsName")
 		metricsValueRaw := chi.URLParam(r, "metricsValue")
-		//fmt.Printf("metricsType: %s\n", metricsType)
-		//fmt.Printf("metricsName: %s\n", metricsName)
-		//fmt.Printf("metricsValue: %s\n", metricsValueRaw)
 
 		if metricsName == "" || metricsValueRaw == "" {
 			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
-
-		//if metricsValueRaw == "" {
-		//	http.Error(w, "Bad Request", http.StatusBadRequest)
-		//}
 
 		if metricsType != "counter" && metricsType != "gauge" {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
