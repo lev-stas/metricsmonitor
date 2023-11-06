@@ -11,6 +11,7 @@ import (
 var storage *memstorage.MemStorage
 
 func main() {
+	parseFlags()
 	storage = memstorage.NewMemStorage()
 	//updateRouter := routers.UpdateRouter()
 	//valueRouter := routers.ValueRouter()
@@ -20,6 +21,6 @@ func main() {
 	r.Mount("/value", routers.ValueRouter(storage))
 	r.Mount("/", routers.RootRouter(storage))
 	//r := routers.UpdateRouter(storage)
-	log.Fatalln(http.ListenAndServe(":8080", r))
+	log.Fatalln(http.ListenAndServe(params.host, r))
 
 }
