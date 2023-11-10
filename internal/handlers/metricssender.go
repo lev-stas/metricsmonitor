@@ -7,6 +7,7 @@ import (
 
 func MetricsSender(metrics *map[string]float64, pollCountMetric *PollCountMetric, randomValueMetric *RandomValueMetric) {
 
+	metricsList := RuntimeMetrics
 	pollInterval := time.Second * time.Duration(configs.AgentParams.PollInterval)
 	reportInterval := time.Second * time.Duration(configs.AgentParams.ReportInterval)
 	pollTicker := time.NewTicker(pollInterval)
@@ -18,7 +19,7 @@ func MetricsSender(metrics *map[string]float64, pollCountMetric *PollCountMetric
 	for {
 		select {
 		case <-pollTicker.C:
-			PollMetricsRunner(metrics, pollCountMetric)
+			PollRunner(metricsList, metrics, pollCountMetric)
 
 		case <-reportTicker.C:
 			ReportRunner(configs.AgentParams.Server, metrics, pollCountMetric, randomValueMetric)
