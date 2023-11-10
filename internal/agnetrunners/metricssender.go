@@ -1,11 +1,11 @@
-package handlers
+package agnetrunners
 
 import (
 	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"time"
 )
 
-func MetricsSender(metrics *map[string]float64, pollCountMetric *PollCountMetric, randomValueMetric *RandomValueMetric) {
+func MetricsSender(metrics *map[string]float64, pollCountMetric *PollCountMetric) {
 
 	metricsList := RuntimeMetrics
 	pollInterval := time.Second * time.Duration(configs.AgentParams.PollInterval)
@@ -22,7 +22,7 @@ func MetricsSender(metrics *map[string]float64, pollCountMetric *PollCountMetric
 			PollRunner(metricsList, metrics, pollCountMetric)
 
 		case <-reportTicker.C:
-			ReportRunner(configs.AgentParams.Server, metrics, pollCountMetric, randomValueMetric)
+			ReportRunner(configs.AgentParams.Server, metrics, pollCountMetric)
 		}
 	}
 }

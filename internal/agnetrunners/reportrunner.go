@@ -1,11 +1,11 @@
-package handlers
+package agnetrunners
 
 import (
 	"fmt"
 	"github.com/go-resty/resty/v2"
 )
 
-func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric, randomValue *RandomValueMetric) {
+func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric) {
 	client := resty.New()
 
 	for metricName, metricValue := range *metrics {

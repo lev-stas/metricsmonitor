@@ -1,4 +1,4 @@
-package handlers
+package agnetrunners
 
 var RuntimeMetrics = []string{
 	"Alloc",

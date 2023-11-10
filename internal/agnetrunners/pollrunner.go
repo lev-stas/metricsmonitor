@@ -1,4 +1,4 @@
-package handlers
+package agnetrunners
 
 import (
 	"math/rand"
@@ -66,8 +66,8 @@ func PollRunner(metricsList []string, metrics *map[string]float64, pollCount *Po
 		case "TotalAlloc":
 			(*metrics)[metric] = float64(m.StackSys)
 		}
-		(*metrics)["RandomValue"] = rand.Float64()
-		pollCount.IncrementPollCount()
 	}
+	(*metrics)["RandomValue"] = rand.Float64()
+	pollCount.IncrementPollCount()
 
 }
