@@ -8,6 +8,9 @@ import (
 	"strconv"
 )
 
+var counterMetric string = "counter"
+var gaugeMetric string = "gauge"
+
 func HandleUpdate(storage *memstorage.MemStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
@@ -24,12 +27,12 @@ func HandleUpdate(storage *memstorage.MemStorage) http.HandlerFunc {
 			return
 		}
 
-		if metricsType != "counter" && metricsType != "gauge" {
+		if metricsType != counterMetric && metricsType != gaugeMetric {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
-		if metricsType == "counter" {
+		if metricsType == counterMetric {
 			metricsValue, err := strconv.ParseInt(metricsValueRaw, 10, 64)
 			if err != nil {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
@@ -38,7 +41,7 @@ func HandleUpdate(storage *memstorage.MemStorage) http.HandlerFunc {
 			storage.SetCounterMetric(metricsName, metricsValue)
 		}
 
-		if metricsType == "gauge" {
+		if metricsType == gaugeMetric {
 			metricsValue, err := strconv.ParseFloat(metricsValueRaw, 62)
 			if err != nil {
 				http.Error(w, "Bad Request", http.StatusBadRequest)
