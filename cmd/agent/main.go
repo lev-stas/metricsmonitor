@@ -1,18 +1,19 @@
 package main
 
 import (
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/handlers"
 	"time"
 )
 
 func main() {
-	parseFlags()
+	configs.GetAgentConfigs()
 	metrics := make(map[string]float64)
 	PollCount := &handlers.PollCountMetric{}
 	RandomValue := &handlers.RandomValueMetric{}
 
-	pollInterval := time.Second * time.Duration(params.PollInterval)
-	reportInterval := time.Second * time.Duration(params.ReportInterval)
+	pollInterval := time.Second * time.Duration(configs.AgentParams.PollInterval)
+	reportInterval := time.Second * time.Duration(configs.AgentParams.ReportInterval)
 	pollTicker := time.NewTicker(pollInterval)
 	reportTicker := time.NewTicker(reportInterval)
 
@@ -25,7 +26,7 @@ func main() {
 			handlers.PollMetricsRunner(&metrics, PollCount)
 
 		case <-reportTicker.C:
-			handlers.ReportRunner(params.Server, &metrics, PollCount, RandomValue)
+			handlers.ReportRunner(configs.AgentParams.Server, &metrics, PollCount, RandomValue)
 		}
 	}
 }
