@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
-	"github.com/lev-stas/metricsmonitor.git/internal/memstorage"
 	"net/http"
 	"strconv"
 )
@@ -11,7 +10,12 @@ import (
 var counterMetric string = "counter"
 var gaugeMetric string = "gauge"
 
-func HandleUpdate(storage *memstorage.MemStorage) http.HandlerFunc {
+type UpdateStorageInterface interface {
+	SetGaugeMetric(metric string, value float64)
+	SetCounterMetric(metric string, value int64)
+}
+
+func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)

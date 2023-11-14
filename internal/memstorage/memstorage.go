@@ -5,15 +5,6 @@ type MemStorage struct {
 	counterMetrics map[string]int64
 }
 
-type StorageInterface interface {
-	SetGaugeMetric(metric string, value float64)
-	SetCounterMetric(metric string, value int64)
-	GetGaugeMetric(metric string) (float64, bool)
-	GetCounterMetric(metric string) (int64, bool)
-	GetAllGaugeMetrics() map[string]float64
-	GetAllCounterMetrics() map[string]int64
-}
-
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
 		gaugeMetrics:   make(map[string]float64),

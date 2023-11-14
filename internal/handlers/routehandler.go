@@ -1,12 +1,16 @@
 package handlers
 
 import (
-	"github.com/lev-stas/metricsmonitor.git/internal/memstorage"
 	"html/template"
 	"net/http"
 )
 
-func RootHandler(storage *memstorage.MemStorage) http.HandlerFunc {
+type StorageInterface interface {
+	GetAllGaugeMetrics() map[string]float64
+	GetAllCounterMetrics() map[string]int64
+}
+
+func RootHandler(storage StorageInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		gaugeMetrics := storage.GetAllGaugeMetrics()
 		counterMetrics := storage.GetAllCounterMetrics()

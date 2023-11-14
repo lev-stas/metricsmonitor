@@ -2,12 +2,16 @@ package handlers
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/lev-stas/metricsmonitor.git/internal/memstorage"
 	"net/http"
 	"strconv"
 )
 
-func ValueHandler(storage *memstorage.MemStorage) http.HandlerFunc {
+type StorageValueInterface interface {
+	GetGaugeMetric(metric string) (float64, bool)
+	GetCounterMetric(metric string) (int64, bool)
+}
+
+func ValueHandler(storage StorageValueInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		metricsType := chi.URLParam(r, "metricsType")
 		metricsName := chi.URLParam(r, "metricsName")
