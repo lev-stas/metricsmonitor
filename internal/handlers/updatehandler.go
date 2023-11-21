@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
-	"github.com/go-chi/chi/v5"
+	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
+	"github.com/lev-stas/metricsmonitor.git/internal/logger"
+	"go.uber.org/zap"
 	"net/http"
-	"strconv"
 )
 
 var counterMetric string = "counter"
@@ -22,41 +24,48 @@ func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 			return
 		}
 
-		metricsType := chi.URLParam(r, "metricsType")
-		metricsName := chi.URLParam(r, "metricsName")
-		metricsValueRaw := chi.URLParam(r, "metricsValue")
+		//metricsType := chi.URLParam(r, "metricsType")
+		//metricsName := chi.URLParam(r, "metricsName")
+		//metricsValueRaw := chi.URLParam(r, "metricsValue")
 
-		if metricsName == "" || metricsValueRaw == "" {
+		var metric datamodels.Metric
+		if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
+			logger.Log.Error("Error during decoding metric object", zap.Error(err))
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+		if metric.ID == "" || (metric.Value == nil && metric.Delta == nil) {
 			http.Error(w, "Not Found", http.StatusNotFound)
 			return
 		}
 
-		if metricsType != counterMetric && metricsType != gaugeMetric {
+		if metric.MType != counterMetric && metric.MType != gaugeMetric {
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
 
-		if metricsType == counterMetric {
-			metricsValue, err := strconv.ParseInt(metricsValueRaw, 10, 64)
-			if err != nil {
-				http.Error(w, "Bad Request", http.StatusBadRequest)
-				return
-			}
-			storage.SetCounterMetric(metricsName, metricsValue)
+		if metric.MType == counterMetric {
+			storage.SetCounterMetric(metric.ID, *metric.Delta)
 		}
 
-		if metricsType == gaugeMetric {
-			metricsValue, err := strconv.ParseFloat(metricsValueRaw, 62)
-			if err != nil {
-				http.Error(w, "Bad Request", http.StatusBadRequest)
-				return
-			}
-			storage.SetGaugeMetric(metricsName, metricsValue)
+		if metric.MType == gaugeMetric {
+			storage.SetGaugeMetric(metric.ID, *metric.Value)
 		}
 
-		fmt.Printf("Received metric update - Type: %s, Name: %s, Value: %s\n", metricsType, metricsName, metricsValueRaw)
+		logger.Log.Debug("Received metric: ", zap.Any("metric", metric))
+		fmt.Println("Successfully sent metric")
+
+		res, err := json.Marshal(metric)
+		if err != nil {
+			logger.Log.Error("Error during marshaling response", zap.Error(err))
+			return
+		}
 
 		w.WriteHeader(http.StatusOK)
+		_, err = w.Write(res)
+		if err != nil {
+			logger.Log.Error("Error during sending response", zap.Error(err))
+		}
 	}
 
 }
