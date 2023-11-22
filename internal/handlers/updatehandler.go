@@ -24,10 +24,6 @@ func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 			return
 		}
 
-		//metricsType := chi.URLParam(r, "metricsType")
-		//metricsName := chi.URLParam(r, "metricsName")
-		//metricsValueRaw := chi.URLParam(r, "metricsValue")
-
 		var metric datamodels.Metric
 		if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
 			logger.Log.Error("Error during decoding metric object", zap.Error(err))
