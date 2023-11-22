@@ -10,10 +10,10 @@ import (
 func RootRouter(storage *memstorage.MemStorage) http.Handler {
 	r := chi.NewRouter()
 	r.Get("/", handlers.RootHandler(storage))
-	r.Post("/value", handlers.ValueHandlerJSON(storage))
-	r.Get("/value/{metricsType}/{metricsName}", handlers.ValueHandler(storage))
-	r.Post("/update", handlers.HandleUpdateJSON(storage))
-	r.Post("/update/{metricsType}/{metricsName}/{metricsValue}", handlers.HandleUpdate(storage))
+	r.Post("/value/", handlers.ValueHandlerJSON(storage))
+	//r.Get("/value/{metricsType}/{metricsName}", handlers.ValueHandler(storage))
+	r.Post("/update/", handlers.HandleUpdateJSON(storage))
+	//r.Post("/update/{metricsType}/{metricsName}/{metricsValue}", handlers.HandleUpdate(storage))
 
 	return r
 }
