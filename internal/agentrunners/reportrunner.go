@@ -1,4 +1,4 @@
-package agnetrunners
+package agentrunners
 
 import (
 	"encoding/json"
@@ -10,8 +10,8 @@ import (
 )
 
 func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric) {
-	gaugeUrl := fmt.Sprintf("http://%s/update", server)
-	counterUrl := fmt.Sprintf("http://%s/update", server)
+	gaugeUrl := fmt.Sprintf("http://%s/update/", server)
+	counterUrl := fmt.Sprintf("http://%s/update/", server)
 	client := resty.New()
 
 	for metricName, metricValue := range *metrics {
