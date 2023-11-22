@@ -55,7 +55,7 @@ func ValueHandler(storage StorageValueInterface) http.HandlerFunc {
 			} else {
 				res = datamodels.Metric{
 					ID:    metric.ID,
-					MType: "gauge",
+					MType: "counter",
 					Delta: &value,
 				}
 			}
