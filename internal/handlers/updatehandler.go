@@ -3,10 +3,12 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 )
 
 var counterMetric string = "counter"
@@ -17,7 +19,7 @@ type UpdateStorageInterface interface {
 	SetCounterMetric(metric string, value int64)
 }
 
-func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
+func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)
@@ -62,6 +64,52 @@ func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 		if err != nil {
 			logger.Log.Error("Error during sending response", zap.Error(err))
 		}
+	}
+
+}
+
+func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)
+			return
+		}
+
+		metricsType := chi.URLParam(r, "metricsType")
+		metricsName := chi.URLParam(r, "metricsName")
+		metricsValueRaw := chi.URLParam(r, "metricsValue")
+
+		if metricsName == "" || metricsValueRaw == "" {
+			http.Error(w, "Not Found", http.StatusNotFound)
+			return
+		}
+
+		if metricsType != counterMetric && metricsType != gaugeMetric {
+			http.Error(w, "Bad Request", http.StatusBadRequest)
+			return
+		}
+
+		if metricsType == counterMetric {
+			metricsValue, err := strconv.ParseInt(metricsValueRaw, 10, 64)
+			if err != nil {
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+				return
+			}
+			storage.SetCounterMetric(metricsName, metricsValue)
+		}
+
+		if metricsType == gaugeMetric {
+			metricsValue, err := strconv.ParseFloat(metricsValueRaw, 62)
+			if err != nil {
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+				return
+			}
+			storage.SetGaugeMetric(metricsName, metricsValue)
+		}
+
+		fmt.Printf("Received metric update - Type: %s, Name: %s, Value: %s\n", metricsType, metricsName, metricsValueRaw)
+
+		w.WriteHeader(http.StatusOK)
 	}
 
 }
