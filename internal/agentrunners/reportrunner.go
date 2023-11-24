@@ -46,9 +46,11 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 		logger.Log.Error("Error during compressing request", zap.Error(er))
 	}
 	_, err = client.R().
-		SetHeader("Content-Type", "application/json").
-		SetHeader("Accept-Encoding", "gzip").
-		SetHeader("Content-Encoding", "gzip").
+		SetHeaderMultiValues(map[string][]string{
+			"Content-Type":     []string{"application/json"},
+			"Accept-Encoding":  []string{"gzip"},
+			"Content-Encoding": []string{"gzip"},
+		}).
 		SetBody(compressedBody).
 		Post(counterUrl)
 	if err != nil {
