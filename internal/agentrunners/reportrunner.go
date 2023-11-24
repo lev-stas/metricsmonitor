@@ -47,6 +47,7 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 	}
 	_, err = client.R().
 		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept-Encoding", "gzip").
 		SetHeader("Content-Encoding", "gzip").
 		SetBody(compressedBody).
 		Post(counterUrl)
