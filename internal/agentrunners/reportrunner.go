@@ -41,9 +41,17 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 	if err != nil {
 		logger.Log.Error("Error during marshaling PollCountMetric", zap.Error(err))
 	}
-	_, er := client.R().SetHeader("Content-Type", "application/json").SetBody(body).Post(counterUrl)
+	compressedBody, er := GzipCompress(body)
 	if er != nil {
-		logger.Log.Error("Error during sending PollCount metric to server", zap.Error(er))
+		logger.Log.Error("Error during compressing request", zap.Error(er))
+	}
+	_, err = client.R().
+		SetHeader("Content-Type", "application/json").
+		SetHeader("Accept-Encoding", "gzip").
+		SetBody(compressedBody).
+		Post(counterUrl)
+	if err != nil {
+		logger.Log.Error("Error during sending PollCount metric to server", zap.Error(err))
 	}
 	logger.Log.Debug("Successfully sent PollCount Metric to server", zap.ByteString("metric", body))
 	pollCount.ResetPollCount()
