@@ -59,12 +59,13 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(res)
 		if err != nil {
 			logger.Log.Error("Error during sending response", zap.Error(err))
 		}
-		w.WriteHeader(http.StatusOK)
+
 	}
 
 }

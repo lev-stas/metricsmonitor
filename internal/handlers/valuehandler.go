@@ -64,14 +64,13 @@ func ValueHandlerJSON(storage StorageValueInterface) http.HandlerFunc {
 			return
 		}
 
-		w.Header().Add("Content-Type", "application/json")
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
 		_, err = w.Write(body)
 		if err != nil {
 			http.Error(w, "Can't response", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-
 	}
 }
 
