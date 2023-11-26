@@ -17,6 +17,7 @@ var gaugeMetric string = "gauge"
 type UpdateStorageInterface interface {
 	SetGaugeMetric(metric string, value float64)
 	SetCounterMetric(metric string, value int64)
+	GetCounterMetric(metric string) (int64, bool)
 }
 
 func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
@@ -44,6 +45,13 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 
 		if metric.MType == counterMetric {
 			storage.SetCounterMetric(metric.ID, *metric.Delta)
+			pollcounter, found := storage.GetCounterMetric(metric.ID)
+			if !found {
+				logger.Log.Error("Error during updating PollCount metric")
+				http.Error(w, "Error during updating metric", http.StatusInternalServerError)
+				return
+			}
+			*metric.Delta = pollcounter
 		}
 
 		if metric.MType == gaugeMetric {
