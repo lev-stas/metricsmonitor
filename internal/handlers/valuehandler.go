@@ -103,12 +103,12 @@ func ValueHandler(storage StorageValueInterface) http.HandlerFunc {
 			}
 		}
 
+		w.WriteHeader(http.StatusOK)
 		_, err := w.Write(response)
 		if err != nil {
 			http.Error(w, "Can't response", http.StatusInternalServerError)
 			return
 		}
 
-		w.WriteHeader(http.StatusOK)
 	}
 }
