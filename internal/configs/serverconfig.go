@@ -7,13 +7,19 @@ import (
 )
 
 type ServerConfigParams struct {
-	Host     string
-	LogLevel string
+	Host            string
+	LogLevel        string
+	StorageFile     string
+	StorageInterval uint
+	Restore         bool
 }
 
 type ServerEnvParams struct {
-	Address  string `env:"ADDRESS"`
-	LogLevel string `env:"LOG_LEVEL"`
+	Address         string `env:"ADDRESS"`
+	LogLevel        string `env:"LOG_LEVEL"`
+	StorageFile     string `env:"FILE_STORAGE_PATH"`
+	StorageInterval uint   `env:"STORE_INTERVAL"`
+	Restore         bool   `env:"RESTORE"`
 }
 
 var ServerParams ServerConfigParams
@@ -22,6 +28,9 @@ var ServerEnvs ServerEnvParams
 func GetServerConfigs() {
 	flag.StringVar(&ServerParams.Host, "a", ":8080", "Server address and port number")
 	flag.StringVar(&ServerParams.LogLevel, "l", "info", "log level")
+	flag.StringVar(&ServerParams.StorageFile, "f", "/tmp/metrics-db.json", "Metrics storage file")
+	flag.UintVar(&ServerParams.StorageInterval, "i", 300, "Write to file interval")
+	flag.BoolVar(&ServerParams.Restore, "r", true, "Should be metrics loaded from file on start server")
 	flag.Parse()
 
 	err := env.Parse(&ServerEnvs)
@@ -33,5 +42,14 @@ func GetServerConfigs() {
 	}
 	if logLevel := ServerEnvs.LogLevel; logLevel != "" {
 		ServerParams.LogLevel = logLevel
+	}
+	if storageInterval := ServerEnvs.StorageInterval; storageInterval != 0 {
+		ServerParams.StorageInterval = storageInterval
+	}
+	if storagePath := ServerEnvs.StorageFile; storagePath != "" {
+		ServerParams.StorageFile = storagePath
+	}
+	if restore := ServerEnvs.Restore; restore {
+		ServerParams.Restore = restore
 	}
 }
