@@ -1,7 +1,11 @@
 package logger
 
 import (
+	"bytes"
+	"encoding/json"
+	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"go.uber.org/zap"
+	"io"
 	"net/http"
 	"time"
 )
@@ -11,6 +15,18 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 		start := time.Now()
 		uri := r.RequestURI
 		method := r.Method
+
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			Log.Error("Can not read request body", zap.Error(err))
+		}
+
+		r.Body = io.NopCloser(bytes.NewReader(body))
+
+		var requestBody datamodels.Metric
+		if err := json.Unmarshal(body, &requestBody); err != nil {
+			Log.Error("Error decoding JSON body", zap.Error(err))
+		}
 
 		responseData := &responseData{
 			status: 0,
@@ -30,6 +46,7 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 			zap.String("URI", uri),
 			zap.String("method", method),
 			zap.Any("headers", r.Header),
+			zap.Any("body", requestBody),
 			zap.Duration("duration", duration),
 		)
 		Log.Info("Sent response",
