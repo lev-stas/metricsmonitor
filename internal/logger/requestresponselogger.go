@@ -11,6 +11,8 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 		start := time.Now()
 		uri := r.RequestURI
 		method := r.Method
+		encodedHeader := r.Header.Get("Content-Encoding")
+		acceptEncodingHeader := r.Header.Get("Accept-Encoding")
 
 		responseData := &responseData{
 			status: 0,
@@ -29,6 +31,8 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 		Log.Info("Incoming request",
 			zap.String("URI", uri),
 			zap.String("method", method),
+			zap.String("Content-Endocoding header", encodedHeader),
+			zap.String("Accept-Encoding header", acceptEncodingHeader),
 			zap.Duration("duration", duration),
 		)
 		Log.Info("Sent response",
