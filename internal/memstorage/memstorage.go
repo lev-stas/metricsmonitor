@@ -1,39 +1,39 @@
 package memstorage
 
 type MemStorage struct {
-	gaugeMetrics   map[string]float64
-	counterMetrics map[string]int64
+	GaugeMetrics   map[string]float64
+	CounterMetrics map[string]int64
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		gaugeMetrics:   make(map[string]float64),
-		counterMetrics: make(map[string]int64),
+		GaugeMetrics:   make(map[string]float64),
+		CounterMetrics: make(map[string]int64),
 	}
 }
 
 func (storage *MemStorage) SetGaugeMetric(metric string, value float64) {
-	storage.gaugeMetrics[metric] = value
+	storage.GaugeMetrics[metric] = value
 }
 
 func (storage *MemStorage) SetCounterMetric(metric string, value int64) {
-	storage.counterMetrics[metric] += value
+	storage.CounterMetrics[metric] += value
 }
 
 func (storage *MemStorage) GetGaugeMetric(metric string) (float64, bool) {
-	value, found := storage.gaugeMetrics[metric]
+	value, found := storage.GaugeMetrics[metric]
 	return value, found
 }
 
 func (storage *MemStorage) GetCounterMetric(metric string) (int64, bool) {
-	value, found := storage.counterMetrics[metric]
+	value, found := storage.CounterMetrics[metric]
 	return value, found
 }
 
 func (storage *MemStorage) GetAllGaugeMetrics() map[string]float64 {
-	return storage.gaugeMetrics
+	return storage.GaugeMetrics
 }
 
 func (storage *MemStorage) GetAllCounterMetrics() map[string]int64 {
-	return storage.counterMetrics
+	return storage.CounterMetrics
 }
