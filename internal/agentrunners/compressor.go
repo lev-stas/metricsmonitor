@@ -2,12 +2,12 @@ package agentrunners
 
 import (
 	"bytes"
-	"compress/flate"
+	"compress/gzip"
 )
 
 func GzipCompress(data []byte) ([]byte, error) {
 	var b bytes.Buffer
-	w, err := flate.NewWriter(&b, flate.BestCompression)
+	w, err := gzip.NewWriterLevel(&b, gzip.BestCompression)
 	if err != nil {
 		return nil, err
 	}
