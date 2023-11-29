@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
-	"go.uber.org/zap"
 	"io"
 	"net/http"
 	"time"
@@ -18,14 +17,14 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 
 		body, err := io.ReadAll(r.Body)
 		if err != nil {
-			Log.Error("Can not read request body", zap.Error(err))
+			Log.Errorw("Can not read request body", "error", err)
 		}
 
 		r.Body = io.NopCloser(bytes.NewReader(body))
 
 		var requestBody datamodels.Metric
-		if err := json.Unmarshal(body, &requestBody); err != nil {
-			Log.Error("Error decoding JSON body", zap.Error(err))
+		if err = json.Unmarshal(body, &requestBody); err != nil {
+			Log.Errorw("Error decoding JSON body", "error", err)
 		}
 
 		responseData := &responseData{
@@ -42,16 +41,16 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 
 		duration := time.Since(start)
 
-		Log.Info("Incoming request",
-			zap.String("URI", uri),
-			zap.String("method", method),
-			zap.Any("headers", r.Header),
-			zap.Any("body", requestBody),
-			zap.Duration("duration", duration),
+		Log.Infow("Incoming request",
+			"URI", uri,
+			"method", method,
+			"headers", r.Header,
+			"body", requestBody,
+			"duration", duration,
 		)
-		Log.Info("Sent response",
-			zap.Int("status", responseData.status),
-			zap.Int("response size", responseData.size),
+		Log.Infow("Sent response",
+			"status", responseData.status,
+			"response size", responseData.size,
 		)
 
 	}

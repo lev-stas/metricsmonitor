@@ -5,7 +5,6 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
-	"go.uber.org/zap"
 	"net/http"
 	"strconv"
 )
@@ -22,7 +21,7 @@ func ValueHandlerJSON(storage StorageValueInterface) http.HandlerFunc {
 		var res datamodels.Metric
 
 		if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
-			logger.Log.Error("Error during decoding request body", zap.Error(err))
+			logger.Log.Errorw("Error during decoding request body", "error", err)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -60,7 +59,7 @@ func ValueHandlerJSON(storage StorageValueInterface) http.HandlerFunc {
 
 		body, err := json.Marshal(res)
 		if err != nil {
-			logger.Log.Error("Error during marshaling response", zap.Error(err))
+			logger.Log.Errorw("Error during marshaling response", "error", err)
 			return
 		}
 

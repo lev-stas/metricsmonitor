@@ -6,7 +6,6 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
-	"go.uber.org/zap"
 )
 
 func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric) {
@@ -23,14 +22,13 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 		}
 		body, err := json.Marshal(metric)
 		if err != nil {
-			logger.Log.Error("Error during marshaling metric object", zap.Error(err))
+			logger.Log.Errorw("Error during marshaling metric object", "error", err)
 		}
 
 		compressedBody, err := GzipCompress(body)
 
-		//fmt.Printf("Request body after compressing: %s", string(compressedBody))
 		if err != nil {
-			logger.Log.Error("Error during compressing gauge request")
+			logger.Log.Errorw("Error during compressing gauge request", "error", err)
 		}
 		_, er := client.R().
 			SetHeaderMultiValues(map[string][]string{
@@ -41,9 +39,9 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 			SetBody(compressedBody).
 			Post(gaugeUrl)
 		if er != nil {
-			logger.Log.Error("Error during sending metric to server", zap.Error(err))
+			logger.Log.Errorw("Error during sending metric to server", "error", er)
 		}
-		logger.Log.Debug("Successfully sent metric", zap.ByteString("metric", body))
+		logger.Log.Debugw("Successfully sent metric", "metric", metric.ID)
 	}
 	counterMetric := datamodels.Metric{
 		ID:    "PollCount",
@@ -53,11 +51,11 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 	}
 	body, err := json.Marshal(counterMetric)
 	if err != nil {
-		logger.Log.Error("Error during marshaling PollCountMetric", zap.Error(err))
+		logger.Log.Errorw("Error during marshaling PollCountMetric", "error", err)
 	}
 	compressedBody, er := GzipCompress(body)
 	if er != nil {
-		logger.Log.Error("Error during compressing counter request", zap.Error(er))
+		logger.Log.Errorw("Error during compressing counter request", "error", er)
 	}
 	_, err = client.R().
 		SetHeaderMultiValues(map[string][]string{
@@ -68,9 +66,9 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 		SetBody(compressedBody).
 		Post(counterUrl)
 	if err != nil {
-		logger.Log.Error("Error during sending PollCount metric to server", zap.Error(err))
+		logger.Log.Errorw("Error during sending PollCount metric to server", "error", err)
 	}
-	logger.Log.Debug("Successfully sent PollCount Metric to server", zap.ByteString("metric", body))
+	logger.Log.Debug("Successfully sent PollCount Metric to server", "metric", counterMetric.ID)
 	pollCount.ResetPollCount()
 
 }

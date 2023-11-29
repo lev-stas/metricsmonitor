@@ -19,5 +19,5 @@ func main() {
 	configs.GetServerConfigs()
 	storage = memstorage.NewMemStorage()
 	r := routers.RootRouter(storage)
-	log.Fatalln(http.ListenAndServe(configs.ServerParams.Host, logger.RequestResponseLogger(gzipper.GzipMiddleware(r))))
+	log.Fatalln(http.ListenAndServe(configs.ServerParams.Host, gzipper.GzipMiddleware(logger.RequestResponseLogger(r))))
 }
