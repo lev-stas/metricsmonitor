@@ -29,7 +29,7 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 
 		var metric datamodels.Metric
 		if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
-			logger.Log.Errorw("Error during decoding metric object", "error", err)
+			//			logger.Log.Errorw("Error during decoding metric object", "error", err)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
@@ -58,7 +58,7 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 			storage.SetGaugeMetric(metric.ID, *metric.Value)
 		}
 
-		logger.Log.Debugw("Received metric: ", "metric", metric)
+		//		logger.Log.Debugw("Received metric: ", "metric", metric)
 		fmt.Println("Successfully sent metric")
 
 		res, err := json.Marshal(metric)
@@ -116,7 +116,7 @@ func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 			}
 			storage.SetGaugeMetric(metricsName, metricsValue)
 		}
-		logger.Log.Debugw("Received metric update - Type: %s, Name: %s, Value: %s\n", metricsType, metricsName, metricsValueRaw)
+		//		logger.Log.Debugw("Received metric update - Type: %s, Name: %s, Value: %s\n", metricsType, metricsName, metricsValueRaw)
 
 		w.WriteHeader(http.StatusOK)
 	}
