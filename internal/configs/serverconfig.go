@@ -7,11 +7,13 @@ import (
 )
 
 type ServerConfigParams struct {
-	Host string
+	Host     string
+	LogLevel string
 }
 
 type ServerEnvParams struct {
-	Address string `env:"ADDRESS"`
+	Address  string `env:"ADDRESS"`
+	LogLevel string `env:"LOG_LEVEL"`
 }
 
 var ServerParams ServerConfigParams
@@ -19,6 +21,7 @@ var ServerEnvs ServerEnvParams
 
 func GetServerConfigs() {
 	flag.StringVar(&ServerParams.Host, "a", ":8080", "Server address and port number")
+	flag.StringVar(&ServerParams.LogLevel, "l", "info", "log level")
 	flag.Parse()
 
 	err := env.Parse(&ServerEnvs)
@@ -27,5 +30,8 @@ func GetServerConfigs() {
 	}
 	if address := ServerEnvs.Address; address != "" {
 		ServerParams.Host = address
+	}
+	if logLevel := ServerEnvs.LogLevel; logLevel != "" {
+		ServerParams.LogLevel = logLevel
 	}
 }

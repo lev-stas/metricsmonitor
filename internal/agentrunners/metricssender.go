@@ -1,4 +1,4 @@
-package agnetrunners
+package agentrunners
 
 import (
 	"github.com/lev-stas/metricsmonitor.git/internal/configs"
