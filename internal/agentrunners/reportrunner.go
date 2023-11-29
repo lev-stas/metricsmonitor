@@ -26,11 +26,20 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 			logger.Log.Error("Error during marshaling metric object", zap.Error(err))
 		}
 
-		compressedBod, err := GzipCompress(body)
+		compressedBody, err := GzipCompress(body)
+
+		//fmt.Printf("Request body after compressing: %s", string(compressedBody))
 		if err != nil {
 			logger.Log.Error("Error during compressing gauge request")
 		}
-		_, er := client.R().SetHeader("Content-Type", "application/json").SetBody(compressedBod).Post(gaugeUrl)
+		_, er := client.R().
+			SetHeaderMultiValues(map[string][]string{
+				"Content-Type":     []string{"application/json"},
+				"Accept-Encoding":  []string{"gzip"},
+				"Content-Encoding": []string{"gzip"},
+			}).
+			SetBody(compressedBody).
+			Post(gaugeUrl)
 		if er != nil {
 			logger.Log.Error("Error during sending metric to server", zap.Error(err))
 		}
