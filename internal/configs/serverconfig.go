@@ -28,7 +28,7 @@ var ServerEnvs ServerEnvParams
 func GetServerConfigs() {
 	flag.StringVar(&ServerParams.Host, "a", ":8080", "Server address and port number")
 	flag.StringVar(&ServerParams.LogLevel, "l", "info", "log level")
-	flag.StringVar(&ServerParams.StorageFile, "f", "/tmp/metrics-db.json", "Metrics storage file")
+	flag.StringVar(&ServerParams.StorageFile, "f", "/tmp/metrics-db.json", "Metrics metricsstorage file")
 	flag.UintVar(&ServerParams.StorageInterval, "i", 300, "Write to file interval")
 	flag.BoolVar(&ServerParams.Restore, "r", true, "Should be metrics loaded from file on start server")
 	flag.Parse()

@@ -2,7 +2,7 @@ package routers
 
 import (
 	"github.com/go-resty/resty/v2"
-	"github.com/lev-stas/metricsmonitor.git/internal/storage"
+	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
@@ -10,7 +10,7 @@ import (
 )
 
 func TestRootRouter(t *testing.T) {
-	storage := storage.NewMemStorage()
+	storage := metricsstorage.NewMemStorage()
 	storage.SetGaugeMetric("TestGauge", 3.14)
 	storage.SetCounterMetric("TestCounter", 88)
 	ts := httptest.NewServer(RootRouter(storage))
