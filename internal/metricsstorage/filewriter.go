@@ -91,6 +91,5 @@ func SaveMetricsToFile(fileWriter FileWriterInterface, storage StorageInterface)
 			return err
 		}
 	}
-	fileWriter.Close()
 	return nil
 }

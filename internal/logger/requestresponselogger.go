@@ -27,14 +27,9 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 			Log.Errorw("Error decoding JSON body", "error", err)
 		}
 
-		responseData := &responseData{
-			status: 0,
-			size:   0,
-		}
-
 		lw := logResponseWriter{
 			ResponseWriter: w,
-			responseData:   responseData,
+			responseData:   &responseData{},
 		}
 
 		h.ServeHTTP(&lw, r)

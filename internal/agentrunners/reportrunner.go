@@ -8,10 +8,10 @@ import (
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 )
 
-func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric) {
+func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCountMetric, client *resty.Client) {
 	gaugeUrl := fmt.Sprintf("http://%s/update/", server)
 	counterUrl := fmt.Sprintf("http://%s/update/", server)
-	client := resty.New()
+	//client := resty.New()
 
 	for metricName, metricValue := range *metrics {
 		metric := datamodels.Metric{
@@ -31,11 +31,11 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 			logger.Log.Errorw("Error during compressing gauge request", "error", err)
 		}
 		_, er := client.R().
-			SetHeaderMultiValues(map[string][]string{
-				"Content-Type":     []string{"application/json"},
-				"Accept-Encoding":  []string{"gzip"},
-				"Content-Encoding": []string{"gzip"},
-			}).
+			//SetHeaderMultiValues(map[string][]string{
+			//	"Content-Type":     []string{"application/json"},
+			//	"Accept-Encoding":  []string{"gzip"},
+			//	"Content-Encoding": []string{"gzip"},
+			//}).
 			SetBody(compressedBody).
 			Post(gaugeUrl)
 		if er != nil {
@@ -58,11 +58,11 @@ func ReportRunner(server string, metrics *map[string]float64, pollCount *PollCou
 		logger.Log.Errorw("Error during compressing counter request", "error", er)
 	}
 	_, err = client.R().
-		SetHeaderMultiValues(map[string][]string{
-			"Content-Type":     []string{"application/json"},
-			"Accept-Encoding":  []string{"gzip"},
-			"Content-Encoding": []string{"gzip"},
-		}).
+		//SetHeaderMultiValues(map[string][]string{
+		//	"Content-Type":     []string{"application/json"},
+		//	"Accept-Encoding":  []string{"gzip"},
+		//	"Content-Encoding": []string{"gzip"},
+		//}).
 		SetBody(compressedBody).
 		Post(counterUrl)
 	if err != nil {

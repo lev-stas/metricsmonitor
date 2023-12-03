@@ -26,14 +26,8 @@ type UpdateStorageInterface interface {
 func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
-		if r.Method != http.MethodPost {
-			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)
-			return
-		}
-
 		var metric datamodels.Metric
 		if err := json.NewDecoder(r.Body).Decode(&metric); err != nil {
-			//			logger.Log.Errorw("Error during decoding metric object", "error", err)
 			http.Error(w, "Bad Request", http.StatusBadRequest)
 			return
 		}
