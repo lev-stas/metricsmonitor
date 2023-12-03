@@ -3,8 +3,10 @@ package handlers
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
+	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -17,10 +19,13 @@ type UpdateStorageInterface interface {
 	SetGaugeMetric(metric string, value float64)
 	SetCounterMetric(metric string, value int64)
 	GetCounterMetric(metric string) (int64, bool)
+	GetAllCounterMetrics() map[string]int64
+	GetAllGaugeMetrics() map[string]float64
 }
 
 func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)
 			return
@@ -71,6 +76,16 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 		if err != nil {
 			logger.Log.Errorw("Error during sending response", "error", err)
 		}
+		if configs.ServerParams.StorageInterval == 0 {
+			fileWriter, er := metricsstorage.NewFileWriter(configs.ServerParams.StorageFile)
+			if er != nil {
+				logger.Log.Errorw("Error during creating File Writer")
+			}
+			err = metricsstorage.SaveMetricsToFile(fileWriter, storage)
+			if err != nil {
+				logger.Log.Errorw("Error during writing metrics to the file")
+			}
+		}
 
 	}
 
@@ -117,6 +132,17 @@ func HandleUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 		//logger.Log.Debugw("Received metric update", "metrics type", metricsType, "metrics name", metricsName, "metrics value", metricsValueRaw)
 
 		w.WriteHeader(http.StatusOK)
+
+		if configs.ServerParams.StorageInterval == 0 {
+			fileWriter, er := metricsstorage.NewFileWriter(configs.ServerParams.StorageFile)
+			if er != nil {
+				logger.Log.Errorw("Error during creating File Writer")
+			}
+			er = metricsstorage.SaveMetricsToFile(fileWriter, storage)
+			if er != nil {
+				logger.Log.Errorw("Error during writing metrics to the file")
+			}
+		}
 	}
 
 }
