@@ -2,6 +2,7 @@ package routers
 
 import (
 	"github.com/go-resty/resty/v2"
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -17,6 +18,7 @@ func TestRootRouter(t *testing.T) {
 	client := resty.New()
 	updateUrl := ts.URL + "/update/"
 	valueUrl := ts.URL + "/value/"
+	configs.ServerParams.StorageFile = "metrics.json"
 
 	var testCasesWithBody = []struct {
 		testName     string
