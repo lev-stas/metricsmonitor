@@ -13,7 +13,8 @@ func RootRouter(storage *metricsstorage.MemStorage) http.Handler {
 	r.Post("/value/", handlers.ValueHandlerJSON(storage))
 	r.Get("/value/{metricsType}/{metricsName}", handlers.ValueHandler(storage))
 	r.Post("/update/", handlers.HandleUpdateJSON(storage))
-	r.Post("/update/{metricsType}/{metricsName}/{metricsValue}", handlers.HandleUpdate(storage))
+	r.Post("/update/gauge/{metricsName}/{metricsValue}", handlers.HandleGaugeUpdate(storage))
+	r.Post("/update/counter/{metricsName}/{metricsValue}", handlers.HandleCounterUpdate(storage))
 
 	return r
 }

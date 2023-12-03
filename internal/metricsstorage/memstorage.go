@@ -12,11 +12,11 @@ func NewMemStorage() *MemStorage {
 	}
 }
 
-func (storage *MemStorage) SetGaugeMetric(metric string, value float64) {
+func (storage *MemStorage) Set(metric string, value float64) {
 	storage.GaugeMetrics[metric] = value
 }
 
-func (storage *MemStorage) SetCounterMetric(metric string, value int64) {
+func (storage *MemStorage) Inc(metric string, value int64) {
 	storage.CounterMetrics[metric] += value
 }
 

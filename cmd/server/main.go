@@ -36,9 +36,9 @@ func main() {
 			if metric != nil {
 				switch metric.MType {
 				case "gauge":
-					storage.SetGaugeMetric(metric.ID, *metric.Value)
+					storage.Set(metric.ID, *metric.Value)
 				case "counter":
-					storage.SetCounterMetric(metric.ID, *metric.Delta)
+					storage.Inc(metric.ID, *metric.Delta)
 				}
 			} else {
 				break

@@ -12,8 +12,8 @@ import (
 
 func TestRootRouter(t *testing.T) {
 	storage := metricsstorage.NewMemStorage()
-	storage.SetGaugeMetric("TestGauge", 3.14)
-	storage.SetCounterMetric("TestCounter", 88)
+	storage.Set("TestGauge", 3.14)
+	storage.Inc("TestCounter", 88)
 	ts := httptest.NewServer(RootRouter(storage))
 	client := resty.New()
 	updateUrl := ts.URL + "/update/"
