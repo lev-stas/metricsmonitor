@@ -1,6 +1,8 @@
 package main
 
 import (
+	"database/sql"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/gzipper"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
@@ -19,7 +21,13 @@ func main() {
 	}
 	configs.GetServerConfigs()
 	storage = metricsstorage.NewMemStorage()
-	r := routers.RootRouter(storage)
+	db, err := sql.Open("pgx", configs.ServerParams.DBConnect)
+	if err != nil {
+		logger.Log.Debugw("Can't connect to DB", "error", err)
+	}
+	defer db.Close()
+
+	r := routers.RootRouter(storage, db)
 	if configs.ServerParams.Restore {
 		fileReader, err := metricsstorage.NewMetricsReader(configs.ServerParams.StorageFile)
 		if err != nil {
