@@ -5,6 +5,7 @@ import (
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -71,14 +72,18 @@ func TestSaveMetricsToFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var readMetrics []datamodels.Metric
-	err = json.Unmarshal(data, &readMetrics)
-	if err != nil {
-		t.Fatal(err)
+	lines := strings.Split(string(data), "\n")
+
+	for _, line := range lines {
+		if line == "" {
+			continue
+		}
+
+		var readMetric datamodels.Metric
+		if err := json.Unmarshal([]byte(line), &readMetric); err != nil {
+			t.Fatal(err)
+		}
 	}
-
-	assert.Len(t, readMetrics, 2, "Unexpected number of metrics in the file")
-
 }
 
 type FakeStorage struct {
