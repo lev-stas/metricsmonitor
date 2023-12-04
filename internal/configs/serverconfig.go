@@ -33,7 +33,7 @@ func GetServerConfigs() {
 	flag.StringVar(&ServerParams.StorageFile, "f", "/tmp/metrics-db.json", "Metrics metricsstorage file")
 	flag.UintVar(&ServerParams.StorageInterval, "i", 300, "Write to file interval")
 	flag.BoolVar(&ServerParams.Restore, "r", true, "Should be metrics loaded from file on start server")
-	flag.StringVar(&ServerParams.DBConnect, "d", "", "All parameters for connection to database")
+	flag.StringVar(&ServerParams.DBConnect, "d", "host:localhost port=5432 user=postgres password=123password", "All parameters for connection to database")
 	flag.Parse()
 
 	err := env.Parse(&ServerEnvs)

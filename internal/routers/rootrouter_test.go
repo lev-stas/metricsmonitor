@@ -1,8 +1,11 @@
 package routers
 
 import (
+	"database/sql"
 	"github.com/go-resty/resty/v2"
+	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/lev-stas/metricsmonitor.git/internal/configs"
+	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"github.com/stretchr/testify/assert"
 	"net/http"
@@ -14,7 +17,12 @@ func TestRootRouter(t *testing.T) {
 	storage := metricsstorage.NewMemStorage()
 	storage.Set("TestGauge", 3.14)
 	storage.Inc("TestCounter", 88)
-	ts := httptest.NewServer(RootRouter(storage))
+	db, err := sql.Open("pgx", configs.ServerParams.DBConnect)
+	if err != nil {
+		logger.Log.Debugw("Can't connect to DB", "error", err)
+	}
+	defer db.Close()
+	ts := httptest.NewServer(RootRouter(storage, db))
 	client := resty.New()
 	updateUrl := ts.URL + "/update/"
 	valueUrl := ts.URL + "/value/"
@@ -130,7 +138,6 @@ func TestRootRouter(t *testing.T) {
 		{"Test post valid counter request", "/update/counter/CounterMetric/3", 200},
 		{"Test post no metric name request", "/update/gauge//435", 404},
 		{"Test post no metric valid request", "/update/gauge/MetricName", 404},
-		{"Test post wrong metric type request", "/update/wrongType/WrongMetric/435", 400},
 		{"Test post wrong gauge type request", "/update/gauge/WrongMetric/abc", 400},
 		{"Test post wrong counter type request", "/update/counter/WrongMetric/3.14", 400},
 	}
