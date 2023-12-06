@@ -19,11 +19,12 @@ func main() {
 	}
 	configs.GetServerConfigs()
 	storage = metricsstorage.NewMemStorage()
-	r := routers.RootRouter(storage)
+
 	writer, err := metricsstorage.NewFileWriter(&configs.ServerParams)
 	if err != nil {
 		logger.Log.Errorw("Error during creating New File Writer")
 	}
+	r := routers.RootRouter(storage, writer)
 	if configs.ServerParams.InitLoad() {
 		if err := preloadworkers.RestoreMetricsFromFile(storage); err != nil {
 			logger.Log.Fatal("Error during reading metrics from file")

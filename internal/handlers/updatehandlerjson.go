@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
+	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -19,7 +21,7 @@ type UpdateStorageInterface interface {
 	GetAllGaugeMetrics() map[string]float64
 }
 
-func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
+func HandleUpdateJSON(storage *metricsstorage.MemStorage, fileWriter metricsstorage.FileWriterInterface) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var metric datamodels.Metric
@@ -64,16 +66,13 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 		if err != nil {
 			logger.Log.Errorw("Error during sending response", "error", err)
 		}
-		//if configs.ServerParams.StorageInterval == 0 {
-		//	fileWriter, er := metricsstorage.NewFileWriter(&configs.ServerParams)
-		//	if er != nil {
-		//		logger.Log.Errorw("Error during creating File Writer")
-		//	}
-		//	err = metricsstorage.SaveMetricsToFile(fileWriter, storage)
-		//	if err != nil {
-		//		logger.Log.Errorw("Error during writing metrics to the file")
-		//	}
-		//}
+		if configs.ServerParams.StorageInterval == 0 {
+			err := metricsstorage.SaveMetricsToFile(fileWriter, storage)
+			defer fileWriter.Close()
+			if err != nil {
+				logger.Log.Errorw("Error during saving metrics to file")
+			}
+		}
 
 	}
 

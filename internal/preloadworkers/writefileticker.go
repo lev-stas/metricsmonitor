@@ -16,7 +16,7 @@ func WriteMetricsTicker(storage *metricsstorage.MemStorage, fileWriter metricsst
 			select {
 			case <-writeTicker.C:
 				err := metricsstorage.SaveMetricsToFile(fileWriter, storage)
-				defer fileWriter.Close()
+				//defer fileWriter.Close()
 				if err != nil {
 					logger.Log.Errorw("Error during saving metrics to file")
 				}
