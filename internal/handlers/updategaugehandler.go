@@ -2,9 +2,6 @@ package handlers
 
 import (
 	"github.com/go-chi/chi/v5"
-	"github.com/lev-stas/metricsmonitor.git/internal/configs"
-	"github.com/lev-stas/metricsmonitor.git/internal/logger"
-	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"net/http"
 	"strconv"
 )
@@ -33,16 +30,16 @@ func HandleGaugeUpdate(storage UpdateStorageInterface) http.HandlerFunc {
 
 		w.WriteHeader(http.StatusOK)
 
-		if configs.ServerParams.StorageInterval == 0 {
-			fileWriter, er := metricsstorage.NewFileWriter(configs.ServerParams.StorageFile)
-			if er != nil {
-				logger.Log.Errorw("Error during creating File Writer")
-			}
-			er = metricsstorage.SaveMetricsToFile(fileWriter, storage)
-			if er != nil {
-				logger.Log.Errorw("Error during writing metrics to the file")
-			}
-		}
+		//if configs.ServerParams.StorageInterval == 0 {
+		//	fileWriter, er := metricsstorage.NewFileWriter(configs.ServerParams.StorageFile)
+		//	if er != nil {
+		//		logger.Log.Errorw("Error during creating File Writer")
+		//	}
+		//	er = metricsstorage.SaveMetricsToFile(fileWriter, storage)
+		//	if er != nil {
+		//		logger.Log.Errorw("Error during writing metrics to the file")
+		//	}
+		//}
 
 	}
 }

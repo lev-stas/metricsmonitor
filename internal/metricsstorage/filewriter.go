@@ -1,8 +1,8 @@
 package metricsstorage
 
 import (
-	"bufio"
 	"encoding/json"
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 	"os"
@@ -10,49 +10,59 @@ import (
 )
 
 type FileWriter struct {
-	file   *os.File
-	writer *bufio.Writer
-	mu     sync.Mutex
+	file     *os.File
+	filename string
+	mu       sync.Mutex
 }
 
 type FileWriterInterface interface {
-	Write(metric datamodels.Metric) error
+	Write(metrics []datamodels.Metric) error
 	Close() error
 }
 
-type StorageInterface interface {
-	GetAllGaugeMetrics() map[string]float64
-	GetAllCounterMetrics() map[string]int64
-}
-
-func NewFileWriter(filename string) (*FileWriter, error) {
-	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE, 0666)
-	if err != nil {
-		return nil, err
+func NewFileWriter(config *configs.ServerConfigParams) (*FileWriter, error) {
+	if config.SyncSave() {
+		file, err := os.OpenFile(config.StorageFile, os.O_WRONLY|os.O_CREATE, 0666)
+		if err != nil {
+			return nil, err
+		}
+		return &FileWriter{
+			file: file,
+		}, nil
 	}
 	return &FileWriter{
-		file:   file,
-		writer: bufio.NewWriter(file),
+		filename: config.StorageFile,
 	}, nil
 }
 
-func (w *FileWriter) Write(metric datamodels.Metric) error {
+func (w *FileWriter) Write(metrics []datamodels.Metric) error {
 	w.mu.Lock()
 	defer w.mu.Unlock()
+	data := []byte{}
 
-	data, err := json.Marshal(&metric)
-	if err != nil {
-		logger.Log.Errorw("Error during marshalling data before writing")
-		return err
+	for _, metric := range metrics {
+		item, err := json.Marshal(&metric)
+		if err != nil {
+			logger.Log.Errorw("Error during marshalling data before writing")
+			return err
+		}
+		data = append(data, item...)
+		data = append(data, '\n')
 	}
 
-	data = append(data, '\n')
+	if w.file != nil {
+		if _, err := w.file.Write(data); err != nil {
+			logger.Log.Errorw("Error during writing to file")
+			return err
+		}
+		return nil
+	}
 
-	if _, err = w.writer.Write(data); err != nil {
+	if err := os.WriteFile(w.filename, data, 0666); err != nil {
 		logger.Log.Errorw("Error during writing to file")
 		return err
 	}
-	return w.writer.Flush()
+	return nil
 }
 
 func (w *FileWriter) Close() error {
@@ -62,11 +72,10 @@ func (w *FileWriter) Close() error {
 	return w.file.Close()
 }
 
-func SaveMetricsToFile(fileWriter FileWriterInterface, storage StorageInterface) error {
+func SaveMetricsToFile(fileWriter FileWriterInterface, storage *MemStorage) error {
 	gaugeMetrics := storage.GetAllGaugeMetrics()
 	counterMetrics := storage.GetAllCounterMetrics()
-
-	defer fileWriter.Close()
+	metrics := []datamodels.Metric{}
 
 	for id, value := range gaugeMetrics {
 		metric := datamodels.Metric{
@@ -74,10 +83,7 @@ func SaveMetricsToFile(fileWriter FileWriterInterface, storage StorageInterface)
 			MType: "gauge",
 			Value: &value,
 		}
-		err := fileWriter.Write(metric)
-		if err != nil {
-			return err
-		}
+		metrics = append(metrics, metric)
 	}
 
 	for id, delta := range counterMetrics {
@@ -86,10 +92,16 @@ func SaveMetricsToFile(fileWriter FileWriterInterface, storage StorageInterface)
 			MType: "counter",
 			Delta: &delta,
 		}
-		err := fileWriter.Write(metric)
-		if err != nil {
-			return err
-		}
+		//err := fileWriter.Write(metric)
+		//if err != nil {
+		//	return err
+		//}
+		metrics = append(metrics, metric)
+	}
+
+	err := fileWriter.Write(metrics)
+	if err != nil {
+		return err
 	}
 	return nil
 }

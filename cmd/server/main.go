@@ -5,8 +5,8 @@ import (
 	"github.com/lev-stas/metricsmonitor.git/internal/gzipper"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
+	"github.com/lev-stas/metricsmonitor.git/internal/preloadworkers"
 	"github.com/lev-stas/metricsmonitor.git/internal/routers"
-	"github.com/lev-stas/metricsmonitor.git/internal/timetickers"
 	"log"
 	"net/http"
 )
@@ -20,33 +20,19 @@ func main() {
 	configs.GetServerConfigs()
 	storage = metricsstorage.NewMemStorage()
 	r := routers.RootRouter(storage)
-	if configs.ServerParams.Restore {
-		fileReader, err := metricsstorage.NewMetricsReader(configs.ServerParams.StorageFile)
-		if err != nil {
-			log.Fatalf("Error during creating Filereader: %v", err)
-		}
-		defer fileReader.Close()
-
-		for {
-			metric, er := fileReader.ReadMetric()
-			if er != nil {
-				break
-
-			}
-			if metric != nil {
-				switch metric.MType {
-				case "gauge":
-					storage.Set(metric.ID, *metric.Value)
-				case "counter":
-					storage.Inc(metric.ID, *metric.Delta)
-				}
-			} else {
-				break
-			}
+	writer, err := metricsstorage.NewFileWriter(&configs.ServerParams)
+	if err != nil {
+		logger.Log.Errorw("Error during creating New File Writer")
+	}
+	if configs.ServerParams.InitLoad() {
+		if err := preloadworkers.RestoreMetricsFromFile(storage); err != nil {
+			logger.Log.Fatal("Error during reading metrics from file")
 		}
 	}
-	if configs.ServerParams.StorageInterval > 0 {
-		timetickers.WriteMetricsTicker(storage)
+
+	if !configs.ServerParams.SyncSave() {
+		preloadworkers.WriteMetricsTicker(storage, writer)
 	}
+
 	log.Fatalln(http.ListenAndServe(configs.ServerParams.Host, gzipper.GzipMiddleware(logger.RequestResponseLogger(r))))
 }

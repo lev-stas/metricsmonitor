@@ -2,14 +2,15 @@ package metricsstorage
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/json"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"os"
 )
 
 type FileReader struct {
-	file    *os.File
-	scanner *bufio.Scanner
+	filename string
+	scanner  *bufio.Scanner
 }
 
 func NewMetricsReader(filename string) (*FileReader, error) {
@@ -17,28 +18,34 @@ func NewMetricsReader(filename string) (*FileReader, error) {
 	if err != nil {
 		return nil, err
 	}
+	file.Close()
 
 	return &FileReader{
-		file:    file,
-		scanner: bufio.NewScanner(file),
+		filename: filename,
+		scanner:  bufio.NewScanner(file),
 	}, nil
 }
 
-func (r *FileReader) ReadMetric() (*datamodels.Metric, error) {
-	if !r.scanner.Scan() {
-		return nil, r.scanner.Err()
-	}
-	data := r.scanner.Bytes()
-
-	metric := datamodels.Metric{}
-
-	err := json.Unmarshal(data, &metric)
+func (r *FileReader) ReadFile() ([]datamodels.Metric, error) {
+	data, err := os.ReadFile(r.filename)
 	if err != nil {
 		return nil, err
 	}
-	return &metric, nil
-}
 
-func (r *FileReader) Close() error {
-	return r.file.Close()
+	metrics := []datamodels.Metric{}
+	lines := bytes.Split(data, []byte("\n"))
+	for _, line := range lines {
+		if len(line) == 0 {
+			continue
+		}
+		metric := datamodels.Metric{}
+		err = json.Unmarshal(line, &metric)
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, metric)
+	}
+
+	return metrics, nil
+
 }

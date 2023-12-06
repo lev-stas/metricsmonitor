@@ -10,13 +10,13 @@ import (
 )
 
 type (
-	responseData struct {
+	respData struct {
 		status int
 		size   int
 	}
 	logResponseWriter struct {
 		http.ResponseWriter
-		responseData *responseData
+		responseData *respData
 	}
 )
 
@@ -49,14 +49,14 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 			Log.Errorw("Error decoding JSON body", "error", err)
 		}
 
-		responseData := &responseData{
-			status: 0,
-			size:   0,
-		}
+		//responseData := &responseData{
+		//	status: 0,
+		//	size:   0,
+		//}
 
 		lw := logResponseWriter{
 			ResponseWriter: w,
-			responseData:   responseData,
+			responseData:   &respData{},
 		}
 
 		h.ServeHTTP(&lw, r)
@@ -71,8 +71,8 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 			"duration", duration,
 		)
 		Log.Infow("Sent response",
-			"status", responseData.status,
-			"response size", responseData.size,
+			"status", lw.responseData.status,
+			"response size", lw.responseData.size,
 		)
 
 	}

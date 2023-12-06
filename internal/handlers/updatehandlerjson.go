@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"encoding/json"
-	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/lev-stas/metricsmonitor.git/internal/logger"
-	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -66,16 +64,16 @@ func HandleUpdateJSON(storage UpdateStorageInterface) http.HandlerFunc {
 		if err != nil {
 			logger.Log.Errorw("Error during sending response", "error", err)
 		}
-		if configs.ServerParams.StorageInterval == 0 {
-			fileWriter, er := metricsstorage.NewFileWriter(configs.ServerParams.StorageFile)
-			if er != nil {
-				logger.Log.Errorw("Error during creating File Writer")
-			}
-			err = metricsstorage.SaveMetricsToFile(fileWriter, storage)
-			if err != nil {
-				logger.Log.Errorw("Error during writing metrics to the file")
-			}
-		}
+		//if configs.ServerParams.StorageInterval == 0 {
+		//	fileWriter, er := metricsstorage.NewFileWriter(&configs.ServerParams)
+		//	if er != nil {
+		//		logger.Log.Errorw("Error during creating File Writer")
+		//	}
+		//	err = metricsstorage.SaveMetricsToFile(fileWriter, storage)
+		//	if err != nil {
+		//		logger.Log.Errorw("Error during writing metrics to the file")
+		//	}
+		//}
 
 	}
 
