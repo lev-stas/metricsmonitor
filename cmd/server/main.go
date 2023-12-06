@@ -9,6 +9,9 @@ import (
 	"github.com/lev-stas/metricsmonitor.git/internal/routers"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 )
 
 var storage *metricsstorage.MemStorage
@@ -35,5 +38,22 @@ func main() {
 		preloadworkers.WriteMetricsTicker(storage, writer)
 	}
 
-	log.Fatalln(http.ListenAndServe(configs.ServerParams.Host, gzipper.GzipMiddleware(logger.RequestResponseLogger(r))))
+	gshdwn := make(chan os.Signal, 1)
+
+	signal.Notify(gshdwn, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		if err := http.ListenAndServe(configs.ServerParams.Host, gzipper.GzipMiddleware(logger.RequestResponseLogger(r))); err != nil {
+			log.Fatalf("ListenAndServe(): %v", err)
+		}
+	}()
+
+	<-gshdwn
+
+	if err = metricsstorage.SaveMetricsToFile(writer, storage); err != nil {
+		logger.Log.Fatalw("Error saving during graceful shutdown", "error", err)
+	}
+	logger.Log.Infow("Server stopped gracefully")
+
+	//log.Fatalln(http.ListenAndServe(configs.ServerParams.Host, gzipper.GzipMiddleware(logger.RequestResponseLogger(r))))
 }
