@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 )
 
@@ -14,11 +15,22 @@ func TestRootRouter(t *testing.T) {
 	storage := metricsstorage.NewMemStorage()
 	storage.Set("TestGauge", 3.14)
 	storage.Inc("TestCounter", 88)
-	ts := httptest.NewServer(RootRouter(storage))
+	tempFile, err := os.CreateTemp("", "test_metrics")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tempFile.Name())
+	configs.ServerParams.StorageFile = tempFile.Name()
+	fileWriter, err := metricsstorage.NewFileWriter(&configs.ServerParams)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer fileWriter.Close()
+
+	ts := httptest.NewServer(RootRouter(storage, fileWriter))
 	client := resty.New()
 	updateUrl := ts.URL + "/update/"
 	valueUrl := ts.URL + "/value/"
-	configs.ServerParams.StorageFile = "metrics.json"
 
 	var testCasesWithBody = []struct {
 		testName     string
