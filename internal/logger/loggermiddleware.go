@@ -13,6 +13,7 @@ type (
 	respData struct {
 		status int
 		size   int
+		body   []byte
 	}
 	logResponseWriter struct {
 		http.ResponseWriter
@@ -23,6 +24,7 @@ type (
 func (r *logResponseWriter) Write(b []byte) (int, error) {
 	size, err := r.ResponseWriter.Write(b)
 	r.responseData.size += size
+	r.responseData.body = b
 	return size, err
 }
 
@@ -73,6 +75,7 @@ func RequestResponseLogger(h http.Handler) http.Handler {
 		Log.Infow("Sent response",
 			"status", lw.responseData.status,
 			"response size", lw.responseData.size,
+			"response body", string(lw.responseData.body),
 		)
 
 	}
