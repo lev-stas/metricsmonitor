@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/go-chi/chi/v5"
 	"github.com/lev-stas/metricsmonitor.git/internal/configs"
-	"github.com/lev-stas/metricsmonitor.git/internal/logger"
 	"github.com/lev-stas/metricsmonitor.git/internal/metricsstorage"
 	"net/http"
 	"strconv"
@@ -37,7 +36,7 @@ func HandleGaugeUpdate(storage *metricsstorage.MemStorage, fileWriter metricssto
 			err := metricsstorage.SaveMetricsToFile(fileWriter, storage)
 			defer fileWriter.Close()
 			if err != nil {
-				logger.Log.Errorw("Error during saving metrics to file")
+				//logger.Log.Errorw("Error during saving metrics to file")
 			}
 		}
 

@@ -52,7 +52,7 @@ func (w *FileWriter) Write(metrics []datamodels.Metric) error {
 
 	if w.file != nil {
 		if _, err := w.file.Write(data); err != nil {
-			logger.Log.Errorw("Error during writing to file")
+			//logger.Log.Errorw("Error during writing to file")
 			return err
 		}
 		return nil

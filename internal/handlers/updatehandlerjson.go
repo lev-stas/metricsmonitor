@@ -70,7 +70,7 @@ func HandleUpdateJSON(storage *metricsstorage.MemStorage, fileWriter metricsstor
 			err := metricsstorage.SaveMetricsToFile(fileWriter, storage)
 			defer fileWriter.Close()
 			if err != nil {
-				logger.Log.Errorw("Error during saving metrics to file")
+				//logger.Log.Errorw("Error during saving metrics to file")
 			}
 		}
 
