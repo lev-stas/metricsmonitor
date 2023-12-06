@@ -2,6 +2,7 @@ package metricsstorage
 
 import (
 	"encoding/json"
+	"github.com/lev-stas/metricsmonitor.git/internal/configs"
 	"github.com/lev-stas/metricsmonitor.git/internal/datamodels"
 	"github.com/stretchr/testify/assert"
 	"os"
@@ -16,7 +17,7 @@ func TestFileWriter(t *testing.T) {
 	}
 	defer os.Remove(tempFile.Name())
 
-	fileWriter, err := NewFileWriter(tempFile.Name())
+	fileWriter, err := NewFileWriter(&configs.ServerConfigParams{StorageFile: tempFile.Name()})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +28,7 @@ func TestFileWriter(t *testing.T) {
 		MType: "gauge",
 		Value: new(float64),
 	}
-	err = fileWriter.Write(testMetric)
+	err = fileWriter.Write([]datamodels.Metric{testMetric})
 	assert.Nil(t, err, "Error writing to file")
 
 	data, err := os.ReadFile(tempFile.Name())
@@ -51,13 +52,14 @@ func TestSaveMetricsToFile(t *testing.T) {
 	}
 	defer os.Remove(tempFile.Name())
 
-	fileWriter, err := NewFileWriter(tempFile.Name())
+	fileWriter, err := NewFileWriter(&configs.ServerConfigParams{StorageFile: tempFile.Name()})
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer fileWriter.Close()
 
-	storage := &FakeStorage{
+	storage := &MemStorage{
+		// Имитация данных в памяти
 		GaugeMetrics: map[string]float64{"test_gauge": 42.0},
 		CounterMetrics: map[string]int64{
 			"test_counter": 10,
@@ -84,17 +86,4 @@ func TestSaveMetricsToFile(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-}
-
-type FakeStorage struct {
-	GaugeMetrics   map[string]float64
-	CounterMetrics map[string]int64
-}
-
-func (fs *FakeStorage) GetAllGaugeMetrics() map[string]float64 {
-	return fs.GaugeMetrics
-}
-
-func (fs *FakeStorage) GetAllCounterMetrics() map[string]int64 {
-	return fs.CounterMetrics
 }
