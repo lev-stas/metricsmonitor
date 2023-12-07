@@ -15,10 +15,10 @@ type FileWriter struct {
 	mu       sync.Mutex
 }
 
-type FileWriterInterface interface {
-	Write(metrics []datamodels.Metric) error
-	Close() error
-}
+//type FileWriterInterface interface {
+//	Write(metrics []datamodels.Metric) error
+//	Close() error
+//}
 
 func NewFileWriter(config *configs.ServerConfigParams) (*FileWriter, error) {
 	if config.SyncSave() {
@@ -72,7 +72,7 @@ func (w *FileWriter) Close() error {
 	return w.file.Close()
 }
 
-func SaveMetricsToFile(fileWriter FileWriterInterface, storage *MemStorage) error {
+func SaveMetricsToFile(fileWriter *FileWriter, storage *MemStorage) error {
 	gaugeMetrics := storage.GetAllGaugeMetrics()
 	counterMetrics := storage.GetAllCounterMetrics()
 	metrics := []datamodels.Metric{}

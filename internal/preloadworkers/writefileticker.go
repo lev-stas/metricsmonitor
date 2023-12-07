@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func WriteMetricsTicker(storage *metricsstorage.MemStorage, fileWriter metricsstorage.FileWriterInterface) {
+func WriteMetricsTicker(storage *metricsstorage.MemStorage, fileWriter *metricsstorage.FileWriter) {
 	writeInterval := time.Second * time.Duration(configs.ServerParams.StorageInterval)
 	writeTicker := time.NewTicker(writeInterval)
 

@@ -21,7 +21,7 @@ type UpdateStorageInterface interface {
 	GetAllGaugeMetrics() map[string]float64
 }
 
-func HandleUpdateJSON(storage *metricsstorage.MemStorage, fileWriter metricsstorage.FileWriterInterface) http.HandlerFunc {
+func HandleUpdateJSON(storage *metricsstorage.MemStorage, fileWriter *metricsstorage.FileWriter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		var metric datamodels.Metric

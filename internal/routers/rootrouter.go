@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func RootRouter(storage *metricsstorage.MemStorage, fileWriter metricsstorage.FileWriterInterface) http.Handler {
+func RootRouter(storage *metricsstorage.MemStorage, fileWriter *metricsstorage.FileWriter) http.Handler {
 	r := chi.NewRouter()
 
 	checkTypeMiddleware := func(next http.Handler) http.Handler {

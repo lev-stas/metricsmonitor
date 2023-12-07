@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-func HandleCounterUpdate(storage *metricsstorage.MemStorage, fileWriter metricsstorage.FileWriterInterface) http.HandlerFunc {
+func HandleCounterUpdate(storage *metricsstorage.MemStorage, fileWriter *metricsstorage.FileWriter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "Method not Allows", http.StatusMethodNotAllowed)
