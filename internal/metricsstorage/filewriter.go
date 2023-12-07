@@ -78,24 +78,23 @@ func SaveMetricsToFile(fileWriter FileWriterInterface, storage *MemStorage) erro
 	metrics := []datamodels.Metric{}
 
 	for id, value := range gaugeMetrics {
+		newValue := value
 		metric := datamodels.Metric{
 			ID:    id,
 			MType: "gauge",
-			Value: &value,
+			Value: &newValue,
 		}
 		metrics = append(metrics, metric)
 	}
 
 	for id, delta := range counterMetrics {
+		newDelta := delta
 		metric := datamodels.Metric{
 			ID:    id,
 			MType: "counter",
-			Delta: &delta,
+			Delta: &newDelta,
 		}
-		//err := fileWriter.Write(metric)
-		//if err != nil {
-		//	return err
-		//}
+
 		metrics = append(metrics, metric)
 	}
 
