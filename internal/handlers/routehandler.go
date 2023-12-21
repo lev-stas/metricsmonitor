@@ -49,6 +49,7 @@ func RootHandler(storage StorageInterface) http.HandlerFunc {
 			return
 		}
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
 		if err := t.Execute(w, metrics); err != nil {
 			http.Error(w, "Can't generate page", http.StatusInternalServerError)
 			return
